@@ -1,0 +1,43 @@
+import numpy as np
+import matplotlib.pyplot as plt
+
+# Generate synthetic data for clustering
+np.random.seed(42)
+data1 = np.random.normal(loc=[2, 2], scale=0.5, size=(100, 2))
+data2 = np.random.normal(loc=[7, 7], scale=0.5, size=(100, 2))
+data = np.vstack((data1, data2))
+
+# K-Means Clustering Algorithm
+def k_means(X, k, max_iters=100):
+    # Initialize centroids randomly
+    centroids = X[np.random.choice(X.shape[0], k, replace=False)]
+    prev_centroids = centroids.copy()
+    
+    for _ in range(max_iters):
+        # Compute distances between points and centroids
+        distances = np.linalg.norm(X[:, np.newaxis] - centroids, axis=2)
+        # Assign clusters based on closest centroid
+        labels = np.argmin(distances, axis=1)
+        # Update centroids
+        new_centroids = np.array([X[labels == i].mean(axis=0) for i in range(k)])
+        # Check for convergence (if centroids do not change)
+        if np.all(centroids == new_centroids):
+            break
+        centroids = new_centroids
+
+    return centroids, labels
+
+# Number of clusters
+k = 2
+centroids, labels = k_means(data, k)
+
+# Plotting the results
+plt.figure(figsize=(10, 6))
+plt.scatter(data[:, 0], data[:, 1], c=labels, s=50, cmap='viridis', marker='o', label='Data Points')
+plt.scatter(centroids[:, 0], centroids[:, 1], c='red', s=200, marker='X', label='Centroids')
+plt.title('K-Means Clustering')
+plt.xlabel('Feature 1')
+plt.ylabel('Feature 2')
+plt.legend()
+plt.grid(True)
+plt.show()
